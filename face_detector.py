@@ -1,25 +1,14 @@
-import os
-os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 import cv2
 import numpy as np
-from flask import Flask, request, jsonify
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.models import load_model
 import dlib
 
+FACE_DETECTOR_PATH = "./weights/mmod_human_face_detector.dat"   # mmod 파일
 
-MODEL_PATH = "./weights_emotions.hdf5"
-#HDF5 (가중치 파일) 모델 경로
-
-FACE_DETECTOR_PATH = "./mmod_human_face_detector.dat"
-#mmod 파일
-
-model = load_model(MODEL_PATH)
-
-
-#face_detector 얼굴 감지기 로드
+# face_detector 얼굴 감지기 로드
 face_detector = dlib.cnn_face_detection_model_v1(FACE_DETECTOR_PATH)
 
-#이미지 전처리 함수
+# 이미지 전처리 함수
 # 웹캠에서 보내오는 이미지가 바이너리 파일 형태로 전송할 경우로 가정합니다!
 def preprocess_image(file) :
     try:
