@@ -18,6 +18,7 @@ def preprocess_image(file) :
 
         # 얼굴 감지
         detection = face_detector(image, 1)
+        print("얼굴 감지 완료")
         if len(detection) == 0:
             return None, "얼굴을 감지할 수 없습니다."
         
@@ -25,6 +26,7 @@ def preprocess_image(file) :
         left, top, right, bottom = detection[0].rect.left(), detection[0].rect.top(), detection[0].rect.right(), detection[0].rect.bottom()
         roi = image[top:bottom, left:right]
 
+        print("정규화 시작")
         # ROI 리사이즈 및 정규화
         roi = cv2.resize(roi, (48, 48))
         roi = roi / 255.0
