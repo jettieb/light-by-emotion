@@ -1,9 +1,9 @@
 import os
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
-import numpy as np
 from flask import Flask, request, jsonify, render_template
 from tensorflow.keras.models import load_model
 from face_detector import preprocess_image # 이미지 전처리 함수
+from prediction_to_color import prediction_to_color # 예측결과로 색 반환 함수
 
 MODEL_PATH = "./weights/weights_emotions.hdf5"  # HDF5 (가중치 파일) 모델 경로
 model = load_model(MODEL_PATH)  # 구현한 얼굴 표정 예측 모델
@@ -14,9 +14,11 @@ application = Flask(__name__)
 def index():
     return render_template("webcam.html")
 
-@application.route('/light')
-def main():
-    return render_template("light.html")
+@application.route('/light', methods=['GET'])
+def light():
+    # 파라미터로 전달된 추천 색상 가져옴
+    color = request.args.get('color')
+    return render_template('light.html', color=color)
 
 @application.route("/predict", methods=["POST"])
 def predict():
@@ -35,18 +37,9 @@ def predict():
         # 예측 및 결과 print
         prediction = model.predict(preprocessed_image)
         print("Prediction result:", prediction)
-        pred = np.argmax(prediction)
-        emotion = ""
-        if(pred == 0): emotion = "angry"
-        elif(pred == 1): emotion = "disgust"
-        elif(pred == 2): emotion = "fear"
-        elif(pred == 3): emotion = "happy"
-        elif(pred == 4): emotion = "neutral"
-        elif(pred == 5): emotion = "sad"
-        elif(pred == 6): emotion = "surprise"
-        print("Emotion: ", emotion)
+        color = prediction_to_color(prediction)
 
-        return jsonify({"emotion": emotion})
+        return jsonify({"color": color})
     except Exception as e:
         print("Error:", e)
         return jsonify({"error": str(e)}), 500

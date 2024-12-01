@@ -3,91 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹캠 이미지 캡처 및 예측</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-        }
-        #container {
-            display: flex;
-            width: 80%;
-            height: 80%;
-        }
-        #webcam {
-            width: 50%;
-        }
-        #result {
-            width: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f0f0f0;
-        }
-        #webcam video {
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='webcam.css') }}">
+    <title>webcam image capture and predict</title>
 </head>
 <body>
-    <div id="container">
-        <!-- 왼쪽: 웹캠 화면 -->
-        <div id="webcam">
-            <video id="video" autoplay></video>
-            <button id="captureBtn">캡쳐하기</button>
-        </div>
+    <!-- 웹캠 화면 -->
+    <div id="webcam">
+        <video id="video" autoplay></video>
+        <button id="captureBtn">webcam predict</button>
+    </div>
 
-        <!-- 오른쪽: 예측 결과 -->
-        <div id="result">
-            <p id="predictionText">여기 예측 결과가 표시됩니다.</p>
+    <!-- 이미지 업로드 -->
+    <div id="imageUpload">
+        <div class="upload-container">
+            <input type="file" id="imageInput"/>
+            <button id="uploadBtn">image predict</button>
         </div>
     </div>
 
-    <script>
-        const videoElement = document.getElementById("video");
-        const captureBtn = document.getElementById("captureBtn");
-        const predictionText = document.getElementById("predictionText");
-
-        // 웹캠을 시작하는 함수
-        async function startWebcam() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            videoElement.srcObject = stream;
-        }
-
-        // 캡쳐 버튼 클릭 시 이미지 캡쳐 및 서버로 전송
-        captureBtn.addEventListener("click", async () => {
-            const canvas = document.createElement("canvas");
-            const context = canvas.getContext("2d");
-            canvas.width = videoElement.videoWidth;
-            canvas.height = videoElement.videoHeight;
-            context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
-
-            // 이미지를 Blob 형태로 변환
-            canvas.toBlob(async (blob) => {
-                const formData = new FormData();
-                formData.append("file", blob, "image.jpg");
-
-                // 서버로 이미지 전송
-                const response = await fetch("/predict", {
-                    method: "POST",
-                    body: formData
-                });
-
-                const data = await response.json();
-                if (data.prediction) {
-                    predictionText.innerText = `추천된 조명 색: ${data.prediction}`;
-                } else {
-                    predictionText.innerText = `예측 실패: ${data.error}`;
-                }
-            }, "image/jpeg");
-        });
-
-        // 웹캠 시작
-        startWebcam();
-    </script>
+<script src="{{ url_for('static', filename='webcam.js') }}"></script>
 </body>
 </html>
